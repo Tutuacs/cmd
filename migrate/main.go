@@ -7,7 +7,7 @@ import (
 
 	"github.com/Tutuacs/pkg/db"
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/mysql"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
@@ -18,14 +18,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	driver, err := mysql.WithInstance(dbConnection, &mysql.Config{})
+	driver, err := postgres.WithInstance(dbConnection, &postgres.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(
 		"file://cmd/migrate/migrations",
-		"mysql",
+		"postgres",
 		driver,
 	)
 	if err != nil {
