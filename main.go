@@ -13,8 +13,6 @@ func main() {
 
 	conf_API := config.GetAPI()
 
-	// TODO: Set the db connection
-
 	server := api.NewApiServer(conf_API.Port)
 	if err := server.Run(); err != nil {
 		logs.ErrorLog(fmt.Sprintf("Error starting server: %s", err))

@@ -24,6 +24,13 @@ func (s *APIServer) Run() error {
 	/*
 		TODO:
 		Set the handlers and pass the router to build the routes
+
+
+		* exHandler := ex.NewHandler()
+		* exHandler.BuildRoutes(router)
+
+
+
 	*/
 
 	logs.OkLog(fmt.Sprintf("Listening on port %s", s.addr))
