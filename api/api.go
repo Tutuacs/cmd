@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Tutuacs/internal/eg"
+	"github.com/Tutuacs/internal/auth"
 	"github.com/Tutuacs/pkg/logs"
 	"github.com/Tutuacs/pkg/routes"
 )
@@ -26,10 +26,12 @@ func (s *APIServer) Run() error {
 		TODO:
 		Set the handlers and pass the router to build the routes
 
-	*/
+		*	egHandler := eg.NewHandler()
+		*	egHandler.BuildRoutes(router)
 
-	egHandler := eg.NewHandler()
-	egHandler.BuildRoutes(router)
+	*/
+	authHandler := auth.NewHandler()
+	authHandler.BuildRoutes(router)
 
 	logs.OkLog(fmt.Sprintf("Listening on port %s", s.addr))
 
