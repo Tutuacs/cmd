@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Tutuacs/internal/auth"
+	"github.com/Tutuacs/internal/user"
 	"github.com/Tutuacs/pkg/logs"
 	"github.com/Tutuacs/pkg/routes"
 )
@@ -32,6 +33,9 @@ func (s *APIServer) Run() error {
 	*/
 	authHandler := auth.NewHandler()
 	authHandler.BuildRoutes(router)
+
+	userHandler := user.NewHandler()
+	userHandler.BuildRoutes(router)
 
 	logs.OkLog(fmt.Sprintf("Listening on port %s", s.addr))
 

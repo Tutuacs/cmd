@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/Tutuacs/pkg/db"
+	"github.com/Tutuacs/pkg/logs"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -53,5 +54,5 @@ func main() {
 			log.Fatal(err)
 		}
 	}
-
+	logs.OkLog("Migration completed")
 }
