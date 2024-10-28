@@ -10,12 +10,15 @@ import (
 )
 
 func main() {
-
 	conf_API := config.GetAPI()
 
-	server := api.NewApiServer(conf_API.Port)
+	server, err := api.NewApiServer(conf_API.Port, "127.0.0.1:6379")
+	if err != nil {
+		logs.ErrorLog(fmt.Sprintf("Error creating server: %s", err))
+		return
+	}
+
 	if err := server.Run(); err != nil {
 		logs.ErrorLog(fmt.Sprintf("Error starting server: %s", err))
 	}
-
 }
