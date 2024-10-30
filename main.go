@@ -5,10 +5,8 @@ import (
 
 	"github.com/Tutuacs/pkg/config"
 	"github.com/Tutuacs/pkg/logs"
-	"github.com/Tutuacs/pkg/mqtt"
 
 	"github.com/Tutuacs/cmd/api"
-	pubsub "github.com/Tutuacs/cmd/pub-sub"
 )
 
 func main() {
@@ -20,23 +18,27 @@ func main() {
 		return
 	}
 
-	pubSub, err := pubsub.UsePubSubService()
-	if err != nil {
-		logs.ErrorLog(fmt.Sprintf("Error creating PubSubService: %s", err))
-	}
+	// ! Want to use MQTT? Uncomment the following lines
+	// ! You can init on main.go or on api.go
+	// * Recomended not init on both files
+	// * Create hanldersFunctions on the pkg/mqtt package
+	// ? You can "UseMQTT() inside http:handlers too"
+	// mqttClient, err := mqtt.UseMqtt()
+	// if err != nil {
+	// 	logs.ErrorLog(fmt.Sprintf("Error connecting Mqtt: %s", err))
+	// }
 
-	mqttClient, err := mqtt.UseMqtt()
-	if err != nil {
-		logs.ErrorLog(fmt.Sprintf("Error creating Mqtt: %s", err))
-	}
-
-	mqttClient.Subscribe("/hello", mqtt.HandleHello)
-	mqttClient.Subscribe("/unknown", mqtt.HandleUnknown)
-
-	pubSub.Run()
+	// ! Want to use Redis pub/sub? Uncomment the following lines
+	// ! You can init on main.go or on api.go
+	// * Recomended not init on both files
+	// * Create hanldersFunctions on the pkg/cache package
+	// pubSub, err := pubsub.UsePubSubService()
+	// if err != nil {
+	// 	logs.ErrorLog(fmt.Sprintf("Error creating PubSubService: %s", err))
+	// }
+	// pubSub.Run()
 
 	if err := server.Run(); err != nil {
 		logs.ErrorLog(fmt.Sprintf("Error starting server: %s", err))
 	}
-
 }

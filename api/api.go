@@ -23,6 +23,11 @@ func NewApiServer(addr string) (*APIServer, error) {
 func (s *APIServer) Run() error {
 	router := routes.NewRouter()
 
+	// ! Want to use WebSocket? Uncomment the following lines
+	// * Create hanldersFunctions on the pkg/ws package
+	// wsHandler := ws.NewWsHandler()
+	// wsHandler.BuildRoutes(router)
+
 	authHandler := auth.NewHandler()
 	authHandler.BuildRoutes(router)
 

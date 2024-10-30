@@ -12,6 +12,7 @@ type PubSubService struct {
 }
 
 func UsePubSubService() (*PubSubService, error) {
+	// cache service mantain always the same connection alive
 	pubsub, err := cache.UseRedisPubSub()
 	if err != nil {
 		return nil, err
