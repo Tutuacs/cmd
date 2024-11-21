@@ -1,44 +1,48 @@
-package main
+package api
 
 import (
 	"fmt"
+	"net/http"
 
-	"github.com/Tutuacs/pkg/config"
+	"github.com/Tutuacs/internal/auth"
+	"github.com/Tutuacs/internal/user"
 	"github.com/Tutuacs/pkg/logs"
-
-	"github.com/Tutuacs/cmd/api"
+	"github.com/Tutuacs/pkg/routes"
 )
 
-func main() {
-	conf_API := config.GetAPI()
+type APIServer struct {
+	addr string
+}
 
-	server, err := api.NewApiServer(conf_API.Port)
-	if err != nil {
-		logs.ErrorLog(fmt.Sprintf("Error creating server: %s", err))
-		return
-	}
+func NewApiServer(addr string) (*APIServer, error) {
+	return &APIServer{
+		addr: addr,
+	}, nil
+}
 
-	// ! Want to use MQTT? Uncomment the following lines
-	// ! You can init on main.go or on api.go
-	// * Recomended not init on both files
-	// * Create hanldersFunctions on the pkg/mqtt package
-	// ? You can "UseMQTT() inside http:handlers too"
-	// mqttClient, err := mqtt.UseMqtt()
-	// if err != nil {
-	// 	logs.ErrorLog(fmt.Sprintf("Error connecting Mqtt: %s", err))
-	// }
+func (s *APIServer) Run() error {
+	router := routes.NewRouter()
 
-	// ! Want to use Redis pub/sub? Uncomment the following lines
-	// ! You can init on main.go or on api.go
-	// * Recomended not init on both files
-	// * Create hanldersFunctions on the pkg/cache package
-	// pubSub, err := pubsub.UsePubSubService()
-	// if err != nil {
-	// 	logs.ErrorLog(fmt.Sprintf("Error creating PubSubService: %s", err))
-	// }
-	// pubSub.Run()
+	// ! Want to use WebSocket? Uncomment the following lines
+	// * Create hanldersFunctions on the pkg/ws package
+	// wsHandler := ws.NewWsHandler()
+	// wsHandler.BuildRoutes(router)
 
-	if err := server.Run(); err != nil {
-		logs.ErrorLog(fmt.Sprintf("Error starting server: %s", err))
-	}
+	// ! Want to Upload files? You can use UploadThing on your Routes
+	// * Validate if your .env file has the correct configuration
+	// upload, err := uploader.UseUploader()
+	// * Create a PrepareUpload object with customs values
+	// upload.PrepareUpload()
+	// * Upload the file you Prepared
+	// upload.UploadFile()
+
+	authHandler := auth.NewHandler()
+	authHandler.BuildRoutes(router)
+
+	userHandler := user.NewHandler()
+	userHandler.BuildRoutes(router)
+
+	logs.OkLog(fmt.Sprintf("Listening on port %s", s.addr))
+
+	return http.ListenAndServe(s.addr, router.Router)
 }
