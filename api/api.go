@@ -6,15 +6,17 @@ import (
 
 	"github.com/Tutuacs/internal/auth"
 	"github.com/Tutuacs/internal/user"
+	"github.com/Tutuacs/pkg/db"
 	"github.com/Tutuacs/pkg/logs"
 	"github.com/Tutuacs/pkg/routes"
+	"github.com/rs/cors" // Import the CORS package
 )
 
 type APIServer struct {
-	addr string
+	addr int64
 }
 
-func NewApiServer(addr string) (*APIServer, error) {
+func NewApiServer(addr int64) (*APIServer, error) {
 	return &APIServer{
 		addr: addr,
 	}, nil
@@ -36,13 +38,35 @@ func (s *APIServer) Run() error {
 	// * Upload the file you Prepared
 	// upload.UploadFile()
 
-	authHandler := auth.NewHandler()
+	// * Create a Db Connection to use on that full application
+	conn, err := db.NewConnection()
+	if err != nil {
+		logs.ErrorLog(fmt.Sprintf("Error connecting to the database: %s", err))
+		return err
+	}
+
+	authStore, _ := auth.NewStore(conn)
+	authHandler := auth.NewHandler(authStore)
 	authHandler.BuildRoutes(router)
 
-	userHandler := user.NewHandler()
+	userStore, _ := user.NewStore(conn)
+	userHandler := user.NewHandler(userStore)
 	userHandler.BuildRoutes(router)
 
-	logs.OkLog(fmt.Sprintf("Listening on port %s", s.addr))
+	// Enable CORS
+	corsMiddleware := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"}, // Allow all origins (you can specify specific origins instead)
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Content-Type", "Authorization"},
+		AllowCredentials: true,  // Allow credentials (e.g., cookies)
+		Debug:            false, // Enable debug logging for CORS (optional)
+	})
 
-	return http.ListenAndServe(s.addr, router.Router)
+	// Wrap the router with the CORS middleware
+	handler := corsMiddleware.Handler(router.Router)
+
+	logs.OkLog(fmt.Sprintf("Listening on port :%d", s.addr))
+
+	// Start the server with the CORS-enabled handler
+	return http.ListenAndServe(fmt.Sprintf(":%d", s.addr), handler)
 }
